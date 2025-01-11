@@ -1,6 +1,7 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
 
 defineProps({
     policy: String,
@@ -8,6 +9,7 @@ defineProps({
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Privacy Policy" />
 
     <div class="font-sans text-gray-900 dark:text-gray-100 antialiased">
@@ -21,4 +23,5 @@ defineProps({
             </div>
         </div>
     </div>
+</AppLayout>
 </template>
