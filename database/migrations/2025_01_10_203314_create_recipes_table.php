@@ -12,17 +12,17 @@ return new class extends Migration {
     {
         Schema::create('recipes', function (Blueprint $table) {
             $table->id();
+            $table->text('description')->nullable();
+            $table->foreignId('variationOf')->nullable()->constrained('recipes')->onDelete('cascade');
             $table->string('name');
             $table->string('type')->nullable();  // e.g., main, side
-            $table->json('prep_steps')->nullable();
-            $table->json('cook_steps')->nullable();
-            $table->string('time')->nullable();  // e.g., 45 mins
+            $table->string('prep-time')->nullable();  // e.g., 45 mins
+            $table->string('cook-time')->nullable();  // e.g., 45 mins
             $table->integer('servings')->nullable();
             $table->string('difficulty')->nullable();  // e.g., easy, medium, hard
-            $table->integer('rating')->nullable();
-            $table->json('tags')->nullable();
             $table->string('origin')->nullable();  // country of origin
             $table->string('source')->nullable();  // source URL
+            $table->string('firestoreCollectionId')->nullable();
             $table->timestamps();
         });
     }

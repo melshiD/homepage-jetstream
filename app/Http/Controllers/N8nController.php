@@ -3,16 +3,36 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use App\Models\Recipe;
 use App\Models\RecipeStep;
 use App\Models\Ingredient;
 
-class RecipesController extends Controller
+class N8nController extends Controller
 {
     /**
-     * Import a recipe from a JSON payload.
+     * Trigger the n8n workflow.
      */
-    public function import(Request $request)
+    public function triggerWorkflow(Request $request)
+    {
+        dd($request);
+        // Replace with your actual n8n webhook URL
+        $n8nWebhookUrl = "https://n8n-v96l.onrender.com/webhook/67fd4442-1c79-4957-b8b7-8162f2f06091";
+
+        // Send data to n8n
+        $response = Http::post($n8nWebhookUrl, $request->all());
+
+        if ($response->successful()) {
+            return response()->json(['message' => 'Workflow triggered successfully'], 200);
+        }
+
+        return response()->json(['error' => 'Failed to trigger workflow'], 500);
+    }
+
+    /**
+     * Handle the webhook response from n8n.
+     */
+    public function handleWebhook(Request $request)
     {
         $data = $request->json()->all();
 
@@ -24,8 +44,7 @@ class RecipesController extends Controller
                 $recipe = Recipe::create([
                     'name' => $output['title'],
                     'description' => $output['description'] ?? null,
-                    'cook-time' => ($output['cook-time'] ?? ''),
-                    'prep-time' => ($output['prep-time'] ?? ''),
+                    'time' => ($output['prepTime'] ?? '') . ' + ' . ($output['cookTime'] ?? ''),
                     'servings' => $output['nutrition_facts']['servings'] ?? null,
                     'source' => $output['link'] ?? null,
                     'firestoreCollectionId' => $output['firestoreCollectionId'] ?? null
@@ -64,7 +83,7 @@ class RecipesController extends Controller
             }
         }
 
-        return response()->json(['message' => 'Recipes imported successfully'], 201);
+        return response()->json(['message' => 'Webhook handled successfully'], 201);
     }
 
     /**

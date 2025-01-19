@@ -123,4 +123,11 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |----------------
+    | Custom environment variables mapped to config for vue access
+    */
+    'n8n_meal_researcher_webhook_url_test' => env('N8N_MEAL_RESEARCHER_WEBHOOK_URL_TEST'),
+    'n8n_meal_researcher_webhook_url_prod' => env('N8N_MEAL_RESEARCHER_WEBHOOK_URL_PROD')
+    
 ];
