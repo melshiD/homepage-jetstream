@@ -10,32 +10,38 @@ use App\Models\Ingredient;
 
 class N8nController extends Controller
 {
+    public function getWebhookUrl()
+    {
+        return response()->json([
+            'webhook_url' => config('app.n8n_meal_researcher_webhook_url_prod'),
+        ]);
+    }
     /**
      * Trigger the n8n workflow.
      */
     public function triggerWorkflow(Request $request)
     {
-        dd($request);
         // Replace with your actual n8n webhook URL
         $n8nWebhookUrl = "https://n8n-v96l.onrender.com/webhook/67fd4442-1c79-4957-b8b7-8162f2f06091";
 
         // Send data to n8n
+        dd($request->all());
         $response = Http::post($n8nWebhookUrl, $request->all());
 
         if ($response->successful()) {
-            return response()->json(['message' => 'Workflow triggered successfully'], 200);
+            dd($response->json());
+            return response()->json(['message' => 'Workflow triggered successfully', 'data' => $response->json()], 200);
         }
-
         return response()->json(['error' => 'Failed to trigger workflow'], 500);
     }
 
     /**
      * Handle the webhook response from n8n.
      */
-    public function handleWebhook(Request $request)
+    public function handleResearchResponse(Request $request)
     {
         $data = $request->json()->all();
-
+dd($data);
         foreach ($data as $entry) {
             if (isset($entry['output'])) {
                 $output = $entry['output'];

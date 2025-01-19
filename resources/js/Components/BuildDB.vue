@@ -11,7 +11,9 @@ export default {
     return {
       requestedRecipe: '',
       returnedRecipe: '',
-      processingRecipeRequest: false
+      processingRecipeRequest: false,
+      processingSQL: false,
+      storedSQL: false,
     };
   },
   computed: {
@@ -20,7 +22,7 @@ export default {
         ? JSON.stringify(this.submittedData, null, 2)
         : 'No data submitted yet.';
     },
-    spinning(){
+    spinning() {
       return this.processingRecipeRequest && this.requestedRecipe.length > 0;
     }
   },
@@ -45,7 +47,7 @@ export default {
         // const fetchUrl = `${webhookUrl}?recipe=${this.requestedRecipe.replaceAll(' ', '+').trim()}`;
         const fetchUrl = `${webhookUrl}`;
         const bodyContent = this.requestedRecipe.replaceAll(' ', '+').trim();
-        
+
         const recipe = await RecipeResearchService.fetchRecipe(fetchUrl, bodyContent);
         this.returnedRecipe = recipe;
         this.processingRecipeRequest = false;
@@ -54,8 +56,23 @@ export default {
         console.error(`Failed to fetch recipe:`, error);
       }
     },
-  },
-};
+    async storeToSQL(recipeData) {
+      try {
+        this.processingSQL = true;
+        const response = await fetch('/api/import-recipe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(recipeData)
+        });
+      } catch (error) {
+        this.processingSQL = false;
+        console.error(`Failed to store to SQL:`, error);
+      }
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -68,6 +85,7 @@ pre {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+
 button {
   position: relative;
   display: inline-flex;
@@ -88,13 +106,15 @@ button {
   border-top: 2px solid white;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-  margin-left: 8px; /* Space between spinner and text */
+  margin-left: 8px;
+  /* Space between spinner and text */
 }
 
 @keyframes spin {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -111,11 +131,11 @@ button {
           class="w-full p-3 border rounded-md bg-gray-50" rows="10" placeholder='Menudo soup' />
       </div>
       <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-        Submit 
+        Submit
         <span v-show="spinning" class="spinner"></span>
       </button>
     </form>
-<!-- //WYSBD, add toaster message -->
+    <!-- //WYSBD, add toaster message -->
     <!-- Display submitted data -->
     <div v-if="returnedRecipe" class="mt-6">
       <h2 class="text-xl font-semibold mb-2">Your recipe has been successfully researched and submitted</h2>

@@ -8,7 +8,7 @@ use App\Http\Controllers\N8nController;
 Route::post('/import', [RecipesController::class, 'import']);
 
 Route::post('/n8n/trigger-workflow', [N8nController::class, 'triggerWorkflow']);
-Route::post('/n8n/handle-response', [N8nController::class, 'handleWebhook']);
+Route::post('/import-recipe', [N8nController::class, 'handleResearchResponse']);
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -17,5 +17,5 @@ Route::get('/user', function (Request $request) {
 
 
 //webhooks to get env variable-assigned URLs
-Route::get('/webhook-url', [RecipesController::class, 'getWebhookUrl'])->name('webhook-url');
+Route::get('/webhook-url', [N8nController::class, 'getWebhookUrl'])->name('webhook-url');
 

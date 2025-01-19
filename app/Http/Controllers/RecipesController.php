@@ -9,6 +9,12 @@ use App\Models\Ingredient;
 
 class RecipesController extends Controller
 {
+    public function getWebhookUrl()
+    {
+        return response()->json([
+            'webhook_url' => config('n8n_meal_researcher_webhook_url_test'),
+        ]);
+    }
     /**
      * Import a recipe from a JSON payload.
      */
