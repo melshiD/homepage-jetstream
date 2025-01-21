@@ -35,9 +35,8 @@ Route::middleware([
     Route::get('/build-db', function () {
         return Inertia::render('Build');
     })->name('build-db');
+
     Route::post('/recipes/import', [RecipeController::class, 'import']);
-
-
 
     Route::post('/recipes', [RecipesController::class, 'store'])->name('recipes');
 });

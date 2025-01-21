@@ -1,8 +1,9 @@
 <script>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { useForm } from '@inertiajs/vue3';
+import ReviewRecipe from './ReviewRecipe.vue';
 import RecipeResearchService from '@/services/RecipeResearchService';
-
+//WYSBD, wire up test recipe response and fix DB write issue(s)
 export default {
   props: {
     submittedData: Object,
@@ -10,12 +11,32 @@ export default {
   data() {
     return {
       requestedRecipe: '',
-      returnedRecipe: '',
+      returnedRecipe: null,
       processingRecipeRequest: false,
       processingSQL: false,
       storedSQL: false,
     };
   },
+  components: {
+    ReviewRecipe,
+  },
+  // mounted() {
+  //   // Use async/await in inherently synchronous mounted()
+  //   (async () => {
+  //     try {
+  //       const response = await fetch('/api/testRecipeJson');
+  //       const data = await response.json();
+  //       const dataArray = [{ output: data.output }, { firestoreCollectionId: data.firestoreCollectionId }]
+  //       this.returnedRecipe = dataArray;
+  //       if (!response.ok) {
+  //         console.error('HTTP error', response.status, response.statusText);
+  //         return;
+  //       }
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   })();
+  // },
   computed: {
     formattedSubmittedData() {
       return this.submittedData
@@ -24,7 +45,7 @@ export default {
     },
     spinning() {
       return this.processingRecipeRequest && this.requestedRecipe.length > 0;
-    }
+    },
   },
   methods: {
     async getRecipe() {
@@ -56,7 +77,7 @@ export default {
         console.error(`Failed to fetch recipe:`, error);
       }
     },
-    async storeToSQL(recipeData) {
+    async storeToSQL() {
       try {
         this.processingSQL = true;
         const response = await fetch('/api/import-recipe', {
@@ -64,8 +85,25 @@ export default {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(recipeData)
+          body: JSON.stringify(this.returnedRecipe)
         });
+        if (!response.ok) {
+          console.log('Trouble writing data to DB.');
+          console.error('Status:', response.status);
+          console.error('StatusText:', response.statusText);
+
+          // Try to parse the error message from the response body
+          const errorData = await response.json().catch(() => null);
+          if (errorData) {
+            console.error('Error details:', errorData);
+            console.log('Error details:', errorData);
+          } else {
+            console.error('Could not parse error response.');
+            console.log('Could not parse error response.');
+          }
+
+          return; // Exit early if the response is not OK
+        }
       } catch (error) {
         this.processingSQL = false;
         console.error(`Failed to store to SQL:`, error);
@@ -123,10 +161,10 @@ button {
 <template>
 
   <div class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Submit JSON</h1>
+    <h1 class="text-2xl font-bold mb-4">Research, edit and save recipes</h1>
     <form @submit.prevent="getRecipe">
       <div class="mb-4">
-        <label for="requestedRecipe" class="block text-lg font-medium mb-2">JSON Data</label>
+        <label for="requestedRecipe" class="block text-lg font-medium mb-2">Desired Recipe/Food Item</label>
         <input type="text" id="requestedRecipe" v-model="requestedRecipe"
           class="w-full p-3 border rounded-md bg-gray-50" rows="10" placeholder='Menudo soup' />
       </div>
@@ -137,11 +175,17 @@ button {
     </form>
     <!-- //WYSBD, add toaster message -->
     <!-- Display submitted data -->
-    <div v-if="returnedRecipe" class="mt-6">
+    <div v-show="returnedRecipe" class="mt-6">
       <h2 class="text-xl font-semibold mb-2">Your recipe has been successfully researched and submitted</h2>
-      <pre class="bg-gray-100 p-4 rounded-md overflow-auto">
-        {{ returnedRecipe }}
-      </pre>
+      <button @click.prevent="storeToSQL(returnedRecipe)"
+        class="px-4 mb-sm py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+        Looks Good
+        <span v-show="processingSQL" class="spinner"></span>
+      </button>
+      <ReviewRecipe v-if="returnedRecipe && returnedRecipe.length" :initialRecipe="returnedRecipe" />
+      <pre>
+          {{ returnedRecipe }}
+        </pre>
     </div>
   </div>
 </template>

@@ -14,7 +14,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
+Route::get('/testRecipeJson', [N8nController::class, 'testRecipeJson'])->name('testRecipeJson');
 
 //webhooks to get env variable-assigned URLs
 Route::get('/webhook-url', [N8nController::class, 'getWebhookUrl'])->name('webhook-url');

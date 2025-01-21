@@ -1,0 +1,161 @@
+[
+    {
+      "output": {
+        "title": "Chocolate-Cherry Truffle Cake",
+        "slug": "chocolate-cherry-truffle-cake",
+        "description": "A special-occasion dessert featuring rich chocolate cake, a delicious filling, and topped with cherries.",
+        "type": "dessert",
+        "link": "https://www.bettycrocker.com/recipes/chocolate-cherry-truffle-cake/48bde7db-271b-4b21-9f33-83450aca9996",
+        "prepTime": "25 min",
+        "cookTime": "2 hr 50 min",
+        "ingredients": [
+          {
+            "name": "semisweet chocolate chips",
+            "quantity": "1 cup"
+          },
+          {
+            "name": "sweetened condensed milk",
+            "quantity": "2/3 cup"
+          },
+          {
+            "name": "almond extract",
+            "quantity": "1/4 teaspoon"
+          },
+          {
+            "name": "Betty Crocker Super Moist Chocolate Fudge Cake Mix",
+            "quantity": "1 box"
+          },
+          {
+            "name": "water",
+            "quantity": "1 cup"
+          },
+          {
+            "name": "butter, softened",
+            "quantity": "1 cup"
+          },
+          {
+            "name": "almond extract",
+            "quantity": "1/2 teaspoon"
+          },
+          {
+            "name": "eggs",
+            "quantity": "4"
+          },
+          {
+            "name": "chocolate instant pudding and pie filling mix",
+            "quantity": "1 box (4-serving size)"
+          },
+          {
+            "name": "maraschino cherries, chopped",
+            "quantity": "3/4 cup"
+          },
+          {
+            "name": "sweetened condensed milk",
+            "quantity": "remaining from 14-oz can"
+          },
+          {
+            "name": "semisweet chocolate chips",
+            "quantity": "3/4 cup"
+          },
+          {
+            "name": "corn syrup",
+            "quantity": "2 tablespoons"
+          },
+          {
+            "name": "milk",
+            "quantity": "1 teaspoon, if needed"
+          }
+        ],
+        "steps": {
+          "preparation": [
+            "Heat oven to 350°F. Grease and lightly flour 12-cup fluted tube cake pan.",
+            "In medium microwavable bowl, microwave filling ingredients uncovered on High 25 to 35 seconds, stirring every 15 seconds, until melted and smooth; set aside.",
+            "In large bowl, beat cake mix, water, butter, 1/2 teaspoon almond extract, the eggs and pudding mix with electric mixer on low speed 30 seconds, then on medium speed 2 minutes, scraping bowl occasionally.",
+            "With rubber spatula, fold in cherries. Spoon half of the batter into pan; spread evenly."
+          ],
+          "execution": [
+            "Bake for 15 minutes.",
+            "Remove from oven; immediately drop spoonfuls of filling over batter, keeping filling away from sides of pan and pressing down lightly.",
+            "Carefully spoon remaining batter over top; spread evenly.",
+            "Bake for 42 to 47 minutes longer or until toothpick inserted near center comes out almost clean and cake springs back when touched lightly in center.",
+            "Cool in pan for 15 minutes. Loosen cake with knife around center and edges of pan. Turn cake upside down onto cooling rack or heatproof serving plate. Cool completely, about 1 1/2 hours.",
+            "In a 1-quart saucepan, heat all glaze ingredients except 1 teaspoon milk over medium-low heat, stirring occasionally, until chocolate is melted and mixture is smooth. Stir in up to 1 teaspoon milk if necessary for glazing consistency.",
+            "Pour glaze over cake, allowing some to drizzle down sides."
+          ]
+        },
+        "additionalInfo": {
+          "usefulTips": [],
+          "interestingFacts": []
+        },
+        "nutrition_facts": {
+          "servings": 12,
+          "calories_per_serving": 410,
+          "macronutrients": {
+            "protein": {
+              "value": 4,
+              "unit": "g"
+            },
+            "carbohydrates": {
+              "value": 54,
+              "unit": "g"
+            },
+            "fats": {
+              "value": 20,
+              "unit": "g"
+            },
+            "saturated_fat": {
+              "value": 10,
+              "unit": "g"
+            }
+          },
+          "micronutrients": {
+            "sodium": {
+              "value": 280,
+              "unit": "mg"
+            },
+            "cholesterol": {
+              "value": 70,
+              "unit": "mg"
+            },
+            "fiber": {
+              "value": 1,
+              "unit": "g"
+            },
+            "sugar": {
+              "value": 32,
+              "unit": "g"
+            },
+            "potassium": {
+              "value": 150,
+              "unit": "mg"
+            },
+            "vitamin_a": {
+              "value": 200,
+              "unit": "IU"
+            },
+            "vitamin_c": {
+              "value": 1,
+              "unit": "mg"
+            },
+            "calcium": {
+              "value": 25,
+              "unit": "mg"
+            },
+            "iron": {
+              "value": 1.5,
+              "unit": "mg"
+            }
+          }
+        },
+        "notes": {
+          "general": "A rich chocolate cake with a delicious cherry filling and glaze.",
+          "calories": "Approximately 410 calories per serving.",
+          "sodium": "280 mg of sodium per serving.",
+          "fiber": "1 g of fiber per serving."
+        }
+      }
+    },
+    {
+      "firestoreCollectionId": null
+    }
+  ]
