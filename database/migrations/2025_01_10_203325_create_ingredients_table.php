@@ -13,7 +13,7 @@ return new class extends Migration {
     Schema::create('ingredients', function (Blueprint $table) {
         $table->id();
         $table->string('name');
-        $table->string('slug')->unique();
+        $table->string('slug')->nullable();
         $table->string('type')->nullable();  // e.g., dry, fresh
         $table->string('category')->nullable();  // e.g., dairy, vegetable
         $table->string('default_unit')->nullable();  // e.g., grams, cups

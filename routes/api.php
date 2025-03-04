@@ -18,4 +18,4 @@ Route::get('/testRecipeJson', [N8nController::class, 'testRecipeJson'])->name('t
 
 //webhooks to get env variable-assigned URLs
 Route::get('/webhook-url', [N8nController::class, 'getWebhookUrl'])->name('webhook-url');
-
+Route::get('/webhook-url-test', [N8nController::class, 'getWebhookUrlTest'])->name('webhook-url-test');

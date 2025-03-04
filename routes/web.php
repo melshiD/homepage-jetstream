@@ -36,6 +36,10 @@ Route::middleware([
         return Inertia::render('Build');
     })->name('build-db');
 
+    Route::get('/build-qr', function () {
+        return Inertia::render('QRBuild');
+    })->name('build-qr');
+
     Route::post('/recipes/import', [RecipeController::class, 'import']);
 
     Route::post('/recipes', [RecipesController::class, 'store'])->name('recipes');

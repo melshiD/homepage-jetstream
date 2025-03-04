@@ -1,4 +1,6 @@
 <template>
+  <!-- WYSBD, wire up the non-functional add/remove feature  -->
+  <!-- figure out how to refactore this to keep the object all together in one spot  -->
   <div class="p-6 max-w-4xl mx-auto bg-white shadow-md rounded-md">
     <h1 class="text-2xl font-bold mb-6">Edit Recipe</h1>
     <form @submit.prevent="submitForm">

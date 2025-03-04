@@ -3,7 +3,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { useForm } from '@inertiajs/vue3';
 import ReviewRecipe from './ReviewRecipe.vue';
 import RecipeResearchService from '@/services/RecipeResearchService';
-//WYSBD, wire up test recipe response and fix DB write issue(s)
+
 export default {
   props: {
     submittedData: Object,
@@ -15,28 +15,29 @@ export default {
       processingRecipeRequest: false,
       processingSQL: false,
       storedSQL: false,
+      testing: false
     };
   },
   components: {
     ReviewRecipe,
   },
-  // mounted() {
-  //   // Use async/await in inherently synchronous mounted()
-  //   (async () => {
-  //     try {
-  //       const response = await fetch('/api/testRecipeJson');
-  //       const data = await response.json();
-  //       const dataArray = [{ output: data.output }, { firestoreCollectionId: data.firestoreCollectionId }]
-  //       this.returnedRecipe = dataArray;
-  //       if (!response.ok) {
-  //         console.error('HTTP error', response.status, response.statusText);
-  //         return;
-  //       }
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   })();
-  // },
+  mounted() {
+    // Use async/await in inherently synchronous mounted()
+    (async () => {
+      try {
+        const response = await fetch('/api/testRecipeJson');
+        const data = await response.json();
+        const dataArray = [{ output: data.output }, { firestoreCollectionId: data.firestoreCollectionId }]
+        this.returnedRecipe = dataArray;
+        if (!response.ok) {
+          console.error('HTTP error', response.status, response.statusText);
+          return;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+  },
   computed: {
     formattedSubmittedData() {
       return this.submittedData
@@ -46,17 +47,27 @@ export default {
     spinning() {
       return this.processingRecipeRequest && this.requestedRecipe.length > 0;
     },
+    testSpinning() {
+      return this.testing && this.requestedRecipe.length > 0;
+    },
   },
   methods: {
-    async getRecipe() {
+    async getRecipe(test) {
+      let fetchUrl = '/api/webhook-url';
+      if (test) {
+        this.testing = true;
+        fetchUrl = '/api/webhook-url-test';
+      }
       const getWebhookUrl = async () => {
-        const response = await fetch('/api/webhook-url');
+        const response = await fetch(fetchUrl);
         if (!response.ok) {
           console.error('Failed to fetch webhook URL in /api/webhook-url');
+          this.testing = false;
           throw new Error('Failed to fetch webhook URL');
         }
         const data = await response.json();
         console.log(`We got the url: ${data.webhook_url}`)
+        this.testing = false;
         return data.webhook_url;
       };
 
@@ -78,36 +89,54 @@ export default {
       }
     },
     async storeToSQL() {
+      this.processingSQL = true;
+
       try {
-        this.processingSQL = true;
         const response = await fetch('/api/import-recipe', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify(this.returnedRecipe)
+          body: JSON.stringify(this.returnedRecipe),
         });
+
+        // Check for non-2xx status codes
         if (!response.ok) {
-          console.log('Trouble writing data to DB.');
-          console.error('Status:', response.status);
-          console.error('StatusText:', response.statusText);
+          console.warn('Database write failed:', response.status, response.statusText);
 
-          // Try to parse the error message from the response body
+          // Parse the response body for error details (if available)
           const errorData = await response.json().catch(() => null);
-          if (errorData) {
-            console.error('Error details:', errorData);
-            console.log('Error details:', errorData);
-          } else {
-            console.error('Could not parse error response.');
-            console.log('Could not parse error response.');
-          }
+          const errorMessage =
+            errorData?.error || `Unexpected error occurred (status: ${response.status})`;
 
-          return; // Exit early if the response is not OK
+          // Log and optionally display error message
+          console.error('Error details:', errorMessage);
+          this.displayError(`Failed to save recipe: ${errorMessage}`);
+
+          return; // Exit early on error
         }
+
+        // Handle success response
+        const result = await response.json();
+        console.log('Data successfully written to the database:', result);
+        this.displaySuccess('Recipe saved successfully!');
       } catch (error) {
+        // Handle unexpected errors (e.g., network issues)
+        console.error('Failed to connect to the server:', error);
+        this.displayError('Unable to save recipe due to a network error. Please try again.');
+      } finally {
         this.processingSQL = false;
-        console.error(`Failed to store to SQL:`, error);
       }
+    },
+    displayError(message) {
+      // Replace with your preferred notification system
+      console.error(message);
+      console.error(message); // Example: Replace with a UI toast
+    },
+    displaySuccess(message) {
+      // Replace with your preferred notification system
+      console.log(message);
+      console.error(message); // Example: Replace with a UI toast
     }
   }
 }
@@ -162,18 +191,23 @@ button {
 
   <div class="p-6">
     <h1 class="text-2xl font-bold mb-4">Research, edit and save recipes</h1>
-    <form @submit.prevent="getRecipe">
+    <form>
       <div class="mb-4">
         <label for="requestedRecipe" class="block text-lg font-medium mb-2">Desired Recipe/Food Item</label>
         <input type="text" id="requestedRecipe" v-model="requestedRecipe"
           class="w-full p-3 border rounded-md bg-gray-50" rows="10" placeholder='Menudo soup' />
       </div>
-      <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+      <button @click.prevent="getRecipe(false)"
+        class="mx-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
         Submit
         <span v-show="spinning" class="spinner"></span>
       </button>
+      <button @click.prevent="getRecipe(true)" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+        Test Workflow
+        <span v-show="testSpinning" class="spinner"></span>
+      </button>
     </form>
-    <!-- //WYSBD, add toaster message -->
+
     <!-- Display submitted data -->
     <div v-show="returnedRecipe" class="mt-6">
       <h2 class="text-xl font-semibold mb-2">Your recipe has been successfully researched and submitted</h2>
@@ -183,9 +217,6 @@ button {
         <span v-show="processingSQL" class="spinner"></span>
       </button>
       <ReviewRecipe v-if="returnedRecipe && returnedRecipe.length" :initialRecipe="returnedRecipe" />
-      <pre>
-          {{ returnedRecipe }}
-        </pre>
     </div>
   </div>
 </template>

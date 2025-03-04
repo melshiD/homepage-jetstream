@@ -18,6 +18,13 @@ class N8nController extends Controller
         ]);
     }
 
+    public function getWebhookUrlTest()
+    {
+        return response()->json([
+            'webhook_url' => config('app.n8n_meal_researcher_webhook_url_test'),
+        ]);
+    }
+
     /**
      * Trigger the n8n workflow.
      */
@@ -76,26 +83,72 @@ class N8nController extends Controller
                 'firestoreCollectionId' => $firestoreCollectionId ?? null,
             ]);
 
-            //         // Save the ingredients
-            //         if (isset($output['ingredients']) && is_array($output['ingredients'])) {
-            //             foreach ($output['ingredients'] as $ingredientData) {
-            //                 if (empty($ingredientData['name'])) {
-            //                     return response()->json(['error' => 'Ingredient name is required.'], 400);
-            //                 }
+            // Save the ingredients
+            if (isset($output['ingredients']) && is_array($output['ingredients'])) {
+                foreach ($output['ingredients'] as $ingredientData) {
+                    if (empty($ingredientData['name'])) {
+                        return response()->json(['error' => 'Ingredient name is required.'], 400);
+                    }
 
-            //                 $ingredient = Ingredient::firstOrCreate(
-            //                     ['name' => $ingredientData['name']],
-            //                     ['default_unit' => null, 'category' => null]
-            //                 );
 
-            //                 $recipe->ingredients()->attach($ingredient->id, [
-            //                     'amount' => $this->extractAmount($ingredientData['quantity'] ?? ''),
-            //                     'unit' => $this->extractUnit($ingredientData['quantity'] ?? ''),
-            //                 ]);
-            //             }
-            //         } else {
-            //             return response()->json(['error' => 'Ingredients are required and should be an array.'], 400);
-            //         }
+                    // try validating to curtail errors inserting
+                    $validatedAttributes = Validator::make($ingredientAttributes, [
+                        'name' => 'required|string|max:255', // Ingredient name is required and cannot exceed 255 characters
+                        'slug' => 'nullable|string|max:255', // Slug is optional and cannot exceed 255 characters
+                        'type' => 'nullable|string|max:255', // Type (e.g., dry, fresh) is optional
+                        'category' => 'nullable|string|max:255', // Category (e.g., dairy, vegetable) is optional
+                        'default_unit' => 'nullable|string|max:50', // Unit (e.g., grams, cups) is optional
+                        'price_per_unit' => 'nullable|numeric|min:0', // Price per unit must be a positive number
+                        'calories' => 'nullable|numeric|min:0', // Calories must be a positive number
+                        'fat' => 'nullable|numeric|min:0', // Fat must be a positive number
+                        'saturated_fat' => 'nullable|numeric|min:0', // Saturated fat must be a positive number
+                        'cholesterol' => 'nullable|numeric|min:0', // Cholesterol must be a positive number
+                        'sodium' => 'nullable|numeric|min:0', // Sodium must be a positive number
+                        'potassium' => 'nullable|numeric|min:0', // Potassium must be a positive number
+                        'carbohydrates' => 'nullable|numeric|min:0', // Carbohydrates must be a positive number
+                        'fiber' => 'nullable|numeric|min:0', // Fiber must be a positive number
+                        'sugar' => 'nullable|numeric|min:0', // Sugar must be a positive number
+                        'protein' => 'nullable|numeric|min:0', // Protein must be a positive number
+                        'vitamin_c' => 'nullable|numeric|min:0', // Vitamin C must be a positive number
+                        'calcium' => 'nullable|numeric|min:0', // Calcium must be a positive number
+                        'iron' => 'nullable|numeric|min:0', // Iron must be a positive number
+                        'vitamin_d' => 'nullable|numeric|min:0', // Vitamin D must be a positive number
+                        'vitamin_b6' => 'nullable|numeric|min:0', // Vitamin B6 must be a positive number
+                        'cobalamin' => 'nullable|numeric|min:0', // Cobalamin (Vitamin B12) must be a positive number
+                        'magnesium' => 'nullable|numeric|min:0', // Magnesium must be a positive number
+                        'allergens' => 'nullable|array', // Allergens must be an array if provided
+                        'notes' => 'nullable|array', // Notes must be an array if provided
+                    ])->validate();
+                    
+
+                    // Find or create the ingredient
+                    //if/else below for debugging... DB won't take on ingredients
+                    if (!$ingredientData['name']) {
+                        Log::error('Ingredient name missing in data: ', $ingredientData);
+                    } else {
+                        Log::info('Ingredient data: ', $ingredientAttributes);
+                        Log::info('Existing ingredient found: ', Ingredient::where('name', $ingredientData['name'])->first());
+                    }
+
+                    try {
+                        $ingredient = Ingredient::firstOrCreate(
+                            ['name' => $ingredientData['name']],
+                            $ingredientAttributes
+                        );
+                    } catch (\Throwable $e) {
+                        Log::error('Error inserting ingredient: ' . $e->getMessage(), ['data' => $ingredientData]);
+                        return response()->json(['error' => 'Failed to save ingredient.'], 500);
+                    }
+
+                    // Attach the ingredient to the recipe with the pivot data
+                    $recipe->ingredients()->attach($ingredient->id, [
+                        'amount' => $this->extractAmount($ingredientData['quantity'] ?? ''),
+                        'unit' => $this->extractUnit($ingredientData['quantity'] ?? ''),
+                    ]);
+                }
+            } else {
+                return response()->json(['error' => 'Ingredients are required and should be an array.'], 400);
+            }
 
             //         // Save the steps
             //         if (isset($output['steps']) && is_array($output['steps'])) {
@@ -123,7 +176,7 @@ class N8nController extends Controller
             //     }
             // }
 
-            return response()->json(['message' => 'Writing to SQL database handled successfully', "recipe" => $recipe], 201);
+            return response()->json(['message' => 'Writing to SQL database handled successfully', 'recipe' => $recipe], 201);
         } catch (Exception $e) {
             return response()->json(['error' => 'Unexpected error: ' . $e->getMessage()], 500);
         }
