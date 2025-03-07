@@ -7,6 +7,11 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+if (process.env.NODE_ENV !== 'production') {
+    console.log('Skipping SSR for development');
+    process.exit(0);
+}
+
 createServer((page) =>
     createInertiaApp({
         page,
